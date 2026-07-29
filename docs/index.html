@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Ask Atlantic Coast Tours about live tour prices, spaces, offers, and west-of-Ireland weather."
+    />
+    <title>Atlantic Coast Tours | Live Tour Guide</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="destination-panel" aria-label="Connemara coastal tour">
+        <img
+          class="destination-image"
+          src="./connemara-coast.png"
+          alt="A small tour bus and two travellers overlooking the Connemara coast"
+        />
+        <div class="destination-shade"></div>
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">AC</span>
+          <span>Atlantic Coast Tours</span>
+        </div>
+        <div class="destination-copy">
+          <p class="eyebrow">Tours from Ireland's western edge</p>
+          <h1>Find your way to the Atlantic.</h1>
+          <p>
+            Ask about live spaces, prices, offers, meeting points, and the
+            forecast for your trip.
+          </p>
+          <div class="route">
+            <span>Clare</span>
+            <span aria-hidden="true"></span>
+            <span>Galway</span>
+            <span aria-hidden="true"></span>
+            <span>Mayo</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="chat-panel" aria-label="Atlantic Coast Tours chat">
+        <header class="chat-header">
+          <div class="guide-identity">
+            <span class="guide-avatar" aria-hidden="true">M</span>
+            <div>
+              <strong>Maeve, your coast guide</strong>
+              <span class="status"><i></i> Live tour and weather information</span>
+            </div>
+          </div>
+          <button class="new-chat" id="new-chat" type="button">New chat</button>
+        </header>
+
+        <div class="conversation" id="conversation" aria-live="polite">
+          <div class="message assistant-message">
+            <div class="message-label">Maeve</div>
+            <div class="message-bubble">
+              Hello. Where would you like the Atlantic to take you? I can check
+              live tours, prices, spaces, special offers, and local forecasts.
+            </div>
+          </div>
+        </div>
+
+        <div class="suggestions" id="suggestions" aria-label="Suggested questions">
+          <button type="button">Which tours have spaces this week?</button>
+          <button type="button">Are there any special offers?</button>
+          <button type="button">What is Connemara's weather tomorrow?</button>
+          <button type="button">
+            Does the Connemara hike have spaces, and what is tomorrow's weather?
+          </button>
+        </div>
+
+        <form class="composer" id="chat-form">
+          <label class="sr-only" for="message">
+            Ask about Atlantic Coast Tours
+          </label>
+          <textarea
+            id="message"
+            name="message"
+            rows="1"
+            maxlength="2000"
+            placeholder="Ask about tours or weather..."
+            required
+          ></textarea>
+          <button class="send-button" id="send-button" type="submit">Send</button>
+        </form>
+
+        <p class="disclosure">
+          You are chatting with an AI assistant. Answers use live tour and
+          weather data and may need staff confirmation.
+        </p>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
+

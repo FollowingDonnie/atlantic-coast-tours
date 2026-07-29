@@ -1,0 +1,16 @@
+{
+  "name": "atlantic-coast-tours",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "test": "node --test test/tours.test.mjs test/weather.test.mjs",
+    "sync-pages": "node scripts/sync-pages.mjs",
+    "test:live": "node test/live-check.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
