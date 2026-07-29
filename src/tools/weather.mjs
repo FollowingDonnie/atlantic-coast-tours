@@ -1,3 +1,5 @@
+import { checkMetNorwayFallback } from "./met-norway.mjs";
+
 const GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search";
 const FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
 
@@ -58,6 +60,9 @@ export async function checkWeather(args, { fetchImpl = fetch } = {}) {
 
   if (!response.ok) {
     const detail = await response.text();
+    if (response.status === 429) {
+      return checkMetNorwayFallback(place, date, fetchedAt, { fetchImpl });
+    }
     if (response.status === 400) {
       return {
         source: sourceMetadata(),
