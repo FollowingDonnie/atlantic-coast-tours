@@ -57,7 +57,7 @@ const selectedProbes = process.env.PROBE_FILTER
   const results = [];
 
   for (const probe of selectedProbes) {
-    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    const page = await browser.newPage({ viewport: { width: 1280, height: 1400 } });
     await page.goto(LIVE_URL, { waitUntil: "networkidle" });
     await page.locator("#message").fill(probe.question);
     await page.locator("#send-button").click();
@@ -78,9 +78,8 @@ const selectedProbes = process.env.PROBE_FILTER
         hasError: element.classList.contains("error-message")
       }));
 
-    await page.screenshot({
-      path: path.join(outputDir, probe.filename),
-      fullPage: true
+    await page.locator(".chat-shell").screenshot({
+      path: path.join(outputDir, probe.filename)
     });
     results.push({ ...probe, ...result });
     await page.close();
