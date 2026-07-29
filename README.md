@@ -27,6 +27,16 @@ npm run sync-pages
 
 `npm run sync-pages` refreshes the static GitHub Pages files in `docs/`.
 
+## Deployment
+
+- GitHub Pages serves the static frontend from `docs/`.
+- Render reads `render.yaml` to create the Node API service.
+- Enter `OPENAI_API_KEY` only when Render prompts for the secret.
+
+[Deploy the backend to Render](https://dashboard.render.com/blueprint/new?repo=https%3A%2F%2Fgithub.com%2FFollowingDonnie%2Fatlantic-coast-tours)
+
+The free Render service can take around a minute to wake after inactivity.
+
 ## Live data
 
 - Google Sheet: CA2 - Atlantic Coast Tours
