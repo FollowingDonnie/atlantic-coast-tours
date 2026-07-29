@@ -42,6 +42,11 @@ They are not the final assessment reflection.
      to influence how absurd prices were handled.
    - Fix: sanitize instruction-like text as data-channel prompt injection,
      preserve the original numeric value, and attach a separate quality flag.
+   - Improvement after testing: replaced the original fixed `EUR 1,000` rule
+     with median/MAD outlier assessment calculated from each live Sheet fetch.
+     Categories with at least four valid prices use their own peers; smaller
+     categories fall back to the full catalogue. The evidence includes scope,
+     peer count, median, MAD, robust score, and price-to-median ratio.
 
 4. **Zero availability and special offers**
    - Pain point: an attractive offer could make a sold-out tour sound bookable.

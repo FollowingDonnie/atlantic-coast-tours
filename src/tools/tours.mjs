@@ -4,6 +4,10 @@ export const SHEET_ID = "1balBGf8QhZ5dc-RCCAPt2kcrcf6m_YRh0HL_r8bBtJw";
 export const SHEET_GID = "120683740";
 export const SHEET_TITLE = "CA2 - Atlantic Coast Tours";
 
+export const MIN_CATEGORY_PEERS = 4;
+export const ROBUST_Z_THRESHOLD = 3.5;
+export const MIN_OUTLIER_RATIO = 3;
+
 const SHEET_CSV_URL =
   `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export` +
   `?format=csv&gid=${SHEET_GID}`;
@@ -111,7 +115,7 @@ export async function fetchLiveTours({ fetchImpl = fetch } = {}) {
   }
 
   const csv = await response.text();
-  const rows = parseCsv(csv).map(normalizeTourRow);
+  const rows = annotatePriceOutliers(parseCsv(csv).map(normalizeTourRow));
 
   if (rows.length === 0) {
     throw new Error("The live tour sheet returned no tour rows.");
@@ -188,7 +192,10 @@ export function rankTourRows(rows, args) {
       return { tour, score };
     })
     .filter(({ tour, score }) => {
-      if (args.max_price_eur !== null && tour.price_eur > args.max_price_eur) {
+      if (
+        args.max_price_eur !== null &&
+        (tour.price_eur === null || tour.price_eur > args.max_price_eur)
+      ) {
         return false;
       }
       if (args.offers_only && !tour.special_offer) {
@@ -219,7 +226,7 @@ export function rankTourRows(rows, args) {
 }
 
 export function normalizeTourRow(row) {
-  const price = finiteNumber(row.price_eur);
+  const price = optionalFiniteNumber(row.price_eur);
   const slots = finiteNumber(row.slots_this_week);
 
   return {
@@ -236,10 +243,93 @@ export function normalizeTourRow(row) {
     special_offer: cleanCell(row.special_offer),
     description: sanitizeUntrustedDescription(row.description),
     data_quality: {
-      suspicious_price: price > 1_000,
+      suspicious_price: false,
+      price_assessment: null,
       sold_out_this_week: slots === 0
     }
   };
+}
+
+export function annotatePriceOutliers(rows) {
+  const validCataloguePrices = rows
+    .map((tour) => tour.price_eur)
+    .filter(isPositiveFiniteNumber);
+
+  const categoryPrices = new Map();
+  for (const tour of rows) {
+    if (!isPositiveFiniteNumber(tour.price_eur)) continue;
+    const category = tour.category || "";
+    const prices = categoryPrices.get(category) || [];
+    prices.push(tour.price_eur);
+    categoryPrices.set(category, prices);
+  }
+
+  return rows.map((tour) => {
+    if (!isPositiveFiniteNumber(tour.price_eur)) {
+      return {
+        ...tour,
+        data_quality: {
+          ...tour.data_quality,
+          suspicious_price: false,
+          price_assessment: {
+            method: "median_mad",
+            status: "unavailable",
+            reason: "missing_or_non_positive_price"
+          }
+        }
+      };
+    }
+
+    const categoryPeers = categoryPrices.get(tour.category || "") || [];
+    const useCategory = categoryPeers.length >= MIN_CATEGORY_PEERS;
+    const peers = useCategory ? categoryPeers : validCataloguePrices;
+    const peerMedian = median(peers);
+    const peerMad = median(
+      peers.map((price) => Math.abs(price - peerMedian))
+    );
+    const ratio =
+      peerMedian > 0
+        ? Math.max(tour.price_eur / peerMedian, peerMedian / tour.price_eur)
+        : null;
+    const robustScore =
+      peerMad > 0
+        ? (0.6745 * Math.abs(tour.price_eur - peerMedian)) / peerMad
+        : null;
+    const suspicious =
+      ratio !== null &&
+      ratio >= MIN_OUTLIER_RATIO &&
+      (robustScore === null || robustScore >= ROBUST_Z_THRESHOLD);
+
+    return {
+      ...tour,
+      data_quality: {
+        ...tour.data_quality,
+        suspicious_price: suspicious,
+        price_assessment: {
+          method: "median_mad",
+          status: "assessed",
+          comparison_scope: useCategory ? "category" : "catalogue",
+          comparison_category: useCategory ? tour.category : null,
+          peer_count: peers.length,
+          median_price_eur: roundForEvidence(peerMedian),
+          median_absolute_deviation_eur: roundForEvidence(peerMad),
+          robust_deviation_score:
+            robustScore === null ? null : roundForEvidence(robustScore),
+          price_to_median_ratio:
+            ratio === null ? null : roundForEvidence(ratio)
+        }
+      }
+    };
+  });
+}
+
+export function median(values) {
+  if (!values.length) return null;
+  const sorted = [...values].sort((left, right) => left - right);
+  const midpoint = Math.floor(sorted.length / 2);
+  return sorted.length % 2
+    ? sorted[midpoint]
+    : (sorted[midpoint - 1] + sorted[midpoint]) / 2;
 }
 
 export function sanitizeUntrustedDescription(value) {
@@ -258,6 +348,22 @@ function cleanCell(value) {
 function finiteNumber(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number : 0;
+}
+
+function optionalFiniteNumber(value) {
+  if (value === null || value === undefined || String(value).trim() === "") {
+    return null;
+  }
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function isPositiveFiniteNumber(value) {
+  return Number.isFinite(value) && value > 0;
+}
+
+function roundForEvidence(value) {
+  return Math.round(value * 100) / 100;
 }
 
 function normalize(value) {

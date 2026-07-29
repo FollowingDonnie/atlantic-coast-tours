@@ -33,3 +33,21 @@ None currently.
    - Technical provenance remains available separately in the "Checked live"
      evidence line.
    - Added automated regression coverage for the prohibited language.
+
+3. **Replace the fixed suspicious-price threshold with robust outlier detection**
+   - Observation: `price > 1_000` caught the planted values but was an arbitrary
+     rule rather than genuine contextual assessment.
+   - Applied change: Prices are now compared with the current live distribution
+     using the median and median absolute deviation (MAD).
+   - Categories with four or more valid prices use category peers; smaller
+     categories fall back to the full catalogue.
+   - A robust deviation threshold and minimum price-ratio guard prevent ordinary
+     variation from being presented as a data error.
+   - The exact listed price remains unchanged. The separate evidence records
+     comparison scope, peer count, median, MAD, robust score, and price ratio.
+   - Regression coverage includes ordinary and planted extreme values, missing
+     prices, small-category fallback, and zero-MAD groups.
+   - Live verification confirmed both planted Boat Tour prices are flagged while
+     the legitimate `EUR 120` Food Tour is not.
+   - The customer response continues to report the source value, add a clear
+     caveat, and recommend staff confirmation without inventing a replacement.

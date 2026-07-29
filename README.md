@@ -44,6 +44,9 @@ The free Render service can take around a minute to wake after inactivity.
 
 Sheet values are treated as untrusted external data. Instruction-like text in
 data cells is removed before results reach the model. Numeric values remain
-unchanged, while suspicious prices are explicitly flagged for customer
+unchanged. Suspicious prices are assessed against the current live price
+distribution using category-level median and median absolute deviation (MAD)
+when enough peers exist, with catalogue-level fallback for smaller categories.
+The original value is preserved and flagged separately for customer
 confirmation.
 
