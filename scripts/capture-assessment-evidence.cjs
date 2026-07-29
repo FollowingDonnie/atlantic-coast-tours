@@ -85,7 +85,7 @@ const selectedProbes = process.env.PROBE_FILTER
         ".composer,.suggestions{display:none!important}"
     });
 
-    await page.locator(".chat-panel").screenshot({
+    await page.locator(".conversation").screenshot({
       path: path.join(outputDir, probe.filename)
     });
     results.push({ ...probe, ...result });
