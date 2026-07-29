@@ -47,12 +47,16 @@ const probes = [
 (async () => {
   fs.mkdirSync(outputDir, { recursive: true });
   const browser = await chromium.launch({
+const selectedProbes = process.env.PROBE_FILTER
+  ? probes.filter((probe) => probe.filename.includes(process.env.PROBE_FILTER))
+  : probes;
+
     headless: true,
     executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
   });
   const results = [];
 
-  for (const probe of probes) {
+  for (const probe of selectedProbes) {
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     await page.goto(LIVE_URL, { waitUntil: "networkidle" });
     await page.locator("#message").fill(probe.question);
