@@ -44,13 +44,13 @@ const probes = [
   }
 ];
 
-(async () => {
-  fs.mkdirSync(outputDir, { recursive: true });
-  const browser = await chromium.launch({
 const selectedProbes = process.env.PROBE_FILTER
   ? probes.filter((probe) => probe.filename.includes(process.env.PROBE_FILTER))
   : probes;
 
+(async () => {
+  fs.mkdirSync(outputDir, { recursive: true });
+  const browser = await chromium.launch({
     headless: true,
     executablePath: "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
   });
