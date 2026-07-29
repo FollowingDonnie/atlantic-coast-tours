@@ -78,6 +78,13 @@ const selectedProbes = process.env.PROBE_FILTER
         hasError: element.classList.contains("error-message")
       }));
 
+    await page.addStyleTag({
+      content:
+        ".chat-panel{display:block!important;min-height:0!important}" +
+        ".conversation{height:auto!important;overflow:visible!important}" +
+        ".composer,.suggestions{display:none!important}"
+    });
+
     await page.locator(".chat-panel").screenshot({
       path: path.join(outputDir, probe.filename)
     });
