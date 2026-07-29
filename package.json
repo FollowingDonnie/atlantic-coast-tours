@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node server.mjs",
     "start": "node server.mjs",
-    "test": "node --test test/tours.test.mjs test/weather.test.mjs test/met-norway.test.mjs test/open-meteo-ensemble.test.mjs",
+    "test": "node --test test/assistant.test.mjs test/tours.test.mjs test/weather.test.mjs test/met-norway.test.mjs test/open-meteo-ensemble.test.mjs",
     "sync-pages": "node scripts/sync-pages.mjs",
     "test:live": "node test/live-check.mjs"
   },
