@@ -78,7 +78,7 @@ const selectedProbes = process.env.PROBE_FILTER
         hasError: element.classList.contains("error-message")
       }));
 
-    await page.locator(".chat-shell").screenshot({
+    await page.locator(".chat-panel").screenshot({
       path: path.join(outputDir, probe.filename)
     });
     results.push({ ...probe, ...result });
