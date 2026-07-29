@@ -201,7 +201,9 @@ function toolEvidence(name, result) {
   return {
     tool: name,
     source: result.source?.name || name,
-    fetchedAt: result.fetchedAt || new Date().toISOString()
+    fetchedAt: result.fetchedAt || new Date().toISOString(),
+    status: result.available === false ? "unavailable" : "ok",
+    detail: result.error || result.reason || null
   };
 }
 

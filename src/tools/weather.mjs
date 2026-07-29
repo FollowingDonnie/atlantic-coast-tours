@@ -51,7 +51,7 @@ export async function checkWeather(args, { fetchImpl = fetch } = {}) {
 
   const response = await fetchWithTimeout(
     url,
-    { cache: "no-store", headers: { "Cache-Control": "no-cache" } },
+    { headers: weatherRequestHeaders() },
     12_000,
     fetchImpl
   );
@@ -126,7 +126,7 @@ export async function geocodeIrishLocation(location, fetchImpl = fetch) {
 
   const response = await fetchWithTimeout(
     url,
-    { cache: "no-store", headers: { "Cache-Control": "no-cache" } },
+    { headers: weatherRequestHeaders() },
     10_000,
     fetchImpl
   );
@@ -179,6 +179,14 @@ function localIsoDate(date) {
     day: "2-digit"
   }).format(date);
 }
+function weatherRequestHeaders() {
+  return {
+    Accept: "application/json",
+    "User-Agent":
+      "AtlanticCoastToursStudentProject/1.0 (weather data via Open-Meteo)"
+  };
+}
+
 
 function sourceMetadata() {
   return {
@@ -188,12 +196,27 @@ function sourceMetadata() {
 }
 
 async function fetchWithTimeout(url, init, timeoutMs, fetchImpl) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetchImpl(url, { ...init, signal: controller.signal });
-  } finally {
-    clearTimeout(timeout);
+  let lastError;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetchImpl(url, { ...init, signal: controller.signal });
+      if (attempt === 0 && (response.status === 429 || response.status >= 500)) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        continue;
+      }
+      return response;
+    } catch (error) {
+      lastError = error;
+      if (attempt === 0) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        continue;
+      }
+    } finally {
+      clearTimeout(timeout);
+    }
   }
+  throw lastError;
 }
 
